@@ -6,7 +6,6 @@ import java.util.Comparator;
 
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
@@ -183,7 +182,6 @@ public class HeroAgent extends Agent {
     private class ListenBehaviour extends SimpleBehaviour
     {
     	private static final long serialVersionUID = 1L;
-    	private String content;
     	
 		public ListenBehaviour(Agent a)
 		{
@@ -192,14 +190,12 @@ public class HeroAgent extends Agent {
 		
 		public void action() 
 		{			
-//			MessageTemplate mI = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-//			MessageTemplate mR = MessageTemplate.MatchPerformative(ACLMessage.REFUSE);
 			boolean flag = false;
+	    	SequentialBehaviour seq = new SequentialBehaviour();
 	    				
-//			ACLMessage msg = receive(MessageTemplate.or(mI, mR));
 			ACLMessage msg = receive();
 			
-			while (msg != null && msg.getConversationId() != null)
+			while (msg != null && msg.getConversationId() != null && msg.getLanguage() == null)
 			{
 				if (msg.getPerformative() == ACLMessage.REFUSE)
 				{
@@ -239,20 +235,16 @@ public class HeroAgent extends Agent {
 					else if (msg.getConversationId().equals("Percept") && !flag)
 					{
 						flag = true;
-						content = msg.getContent();
+						seq.addSubBehaviour(new ThinkBehaviour(myAgent, msg.getContent()));
+						seq.addSubBehaviour(new ActBehaviour(myAgent));						
 					}
 				}
 				
 				msg = receive();
 			} 
 			
-			if (flag)
-			{
-				SequentialBehaviour seq = new SequentialBehaviour();
-				seq.addSubBehaviour(new ThinkBehaviour(myAgent, content));
-				seq.addSubBehaviour(new ActBehaviour(myAgent));
+			if (!seq.getChildren().isEmpty())
 				myAgent.addBehaviour(seq);
-			}			
 		}
 		
 		public void mark(ACLMessage msg)
@@ -680,6 +672,7 @@ public class HeroAgent extends Agent {
 	        {
 	        	printAction("This Agent is Dead");
 	        	this.myAgent.removeBehaviour(this.parent);
+//	        	this.myAgent.doSuspend();
 	        }
 			
 			return 0;

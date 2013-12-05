@@ -34,18 +34,18 @@ public class WorldAgent extends Agent {
 //						 		 {"X","B","P","B"},
 //           					   };
 	    
-//		board = new String[][] { {"W","GS"," ","B"},
-//								 {"S"," ","B","P"},
-//								 {" ","B","P","B"},
-//								 {"X"," ","B","P"},
-//		  					   };
+		board = new String[][] { {"W","GS"," ","B"},
+								 {"S"," ","B","P"},
+								 {" ","B","P","B"},
+								 {"X"," ","B","P"},
+		  					   };
 		
 //	    Teste precisando matar o Wumpus e explorar espaco nao seguro
-		board = new String[][] { {"B","B","BG","P"},
-				 				 {"P","P","B","B"},
-				 				 {"B","P","BS"," "},
-				 				 {"X","BS","W","S"},
-				   			   };
+//		board = new String[][] { {"B","B","BG","P"},
+//				 				 {"P","P","B","B"},
+//				 				 {"B","P","BS"," "},
+//				 				 {"X","BS","W","S"},
+//				   			   };
 		
 //	    board = new String[board_size][board_size];
 //		

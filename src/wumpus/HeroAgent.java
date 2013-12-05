@@ -299,6 +299,7 @@ public class HeroAgent extends Agent {
 					if (!gold)
 					{
 						board[sourceY][sourceX].setPercept(2, true);
+						board[sourceY][sourceX].setVisited(true);
 						gold = true;
 						printAction("Gold Found and Grabbed!");
 					}
@@ -310,6 +311,15 @@ public class HeroAgent extends Agent {
 				}
 				
 			}while (end > 0);
+			
+			end = content.indexOf('@', begin);
+			
+			if (end > 0)
+			{
+				int originX = Integer.parseInt(content.substring(begin, end));
+				int originY = Integer.parseInt(content.substring(end + 1));
+				board[originY][originX].setVisited(true);
+			}
 			
 			if (!reply.isEmpty())
 			{
@@ -519,6 +529,7 @@ public class HeroAgent extends Agent {
 	            
 	            if (!content.isEmpty())
 	            {
+	            	content = content.concat(x + "@" + y);
 		            inform.setContent(content);	            
 		            send(inform);
 	            }
@@ -557,6 +568,7 @@ public class HeroAgent extends Agent {
 	            
 	            if (!content.isEmpty())
 	            {
+	            	content = content.concat(x + "@" + y);
 	            	inform.setContent(content);
 	            	send(inform);
 	            }
@@ -599,6 +611,7 @@ public class HeroAgent extends Agent {
 	            
 	            if (!content.isEmpty())
 	            {
+	            	content = content.concat(x + "@" + y);
 	            	inform.setContent(content);
 	            	send(inform);
 	            }
@@ -631,6 +644,7 @@ public class HeroAgent extends Agent {
 	            
 	            if (!content.isEmpty())
 	            {
+	            	content = content.concat(x + "@" + y);
 	            	inform.setContent(content);
 	            	send(inform);
 	            }
@@ -1010,27 +1024,49 @@ public class HeroAgent extends Agent {
 	    {
 	    	int[] coord = { x, y }; 
 	        
-	    	if (id == 0)
-	        {
+	    	if (orientation.equals("Right"))
+	    	{
 	    		if (x < 3 && board[y][x+1].isSafe())
 	    			coord[0]++;
+		        else if (y < 3 && board[y+1][x].isSafe())
+		            coord[1]++; 	
+		        else if (x > 0 && board[y][x-1].isSafe())
+		            coord[0]--;
 		        else if (y > 0 && board[y-1][x].isSafe())
 		            coord[1]--;
+	    	}
+	    	else if (orientation.equals("Left"))
+	    	{
+	    		if (x > 0 && board[y][x-1].isSafe())
+	    			coord[0]--;
+		        else if (y > 0 && board[y-1][x].isSafe())
+		            coord[1]--; 	
+		        else if (x < 3 && board[y][x+1].isSafe())
+		            coord[0]++;
+		        else if (y < 3 && board[y+1][x].isSafe())
+		            coord[1]++;
+	    	}
+	    	else if (orientation.equals("Down"))
+	    	{
+	    		if (y < 3 && board[y+1][x].isSafe())
+	    			coord[1]++;
+		        else if (x > 0 && board[y][x-1].isSafe())
+		            coord[0]--; 	
+		        else if (y > 0 && board[y-1][x].isSafe())
+		            coord[1]--;
+		        else if (x < 3 && board[y][x+1].isSafe())
+		            coord[0]++;
+	    	}
+	    	else if (orientation.equals("Up"))
+	    	{
+	    		if (y > 0 && board[y-1][x].isSafe())
+	    			coord[1]--;
+		        else if (x < 3 && board[y][x+1].isSafe())
+		            coord[0]++; 	
 		        else if (y < 3 && board[y+1][x].isSafe())
 		            coord[1]++;
 		        else if (x > 0 && board[y][x-1].isSafe())
 		            coord[0]--;
-	        }
-	    	else
-	    	{
-	    		if (x > 0 && board[y][x-1].isSafe())
-		            coord[0]--;
-	    		else if (y < 3 && board[y+1][x].isSafe())
-		            coord[1]++;
-	    		else if (y > 0 && board[y-1][x].isSafe())
-		            coord[1]--;
-	    		else if (x < 3 && board[y][x+1].isSafe())
-	    			coord[0]++;
 	    	}
 	        
 	        return coord;
@@ -1040,63 +1076,119 @@ public class HeroAgent extends Agent {
 	    {
 	    	int[] coord = { x, y };
 	    	
-	    	if (id == 0)
+	    	if (orientation.equals("Right"))
 	    	{
-		        if (x < 3 && 
-	        		!board[y][x+1].isVisited() &&
-	        		(	(board[y][x+1].isSafe() && safe) ||
-	        			!safe))
-		        	coord[0]++;
-		        else if (y > 0 && 
-		        		 !board[y-1][x].isVisited() &&
-		        		 (	(board[y-1][x].isSafe() && safe) ||
-		        			!safe))
-		            coord[1]--;
-		        else if (y < 3 &&
-		        		 !board[y+1][x].isVisited() &&
-		        		 (	(board[y+1][x].isSafe() && safe) ||
-	             			!safe))
-		            coord[1]++;
-		        else if (x > 0 &&
-		        		 !board[y][x-1].isVisited() &&
-		        		 (	(board[y][x-1].isSafe() && safe) ||
-	             			!safe))
-		            coord[0]--;
-		        else
-		        {
-		        	coord[0] = -1;
-		        	coord[1] = -1;
-		        }
-	    	}
-	    	else
-	    	{
-	    		if (x > 0 &&
-	    			!board[y][x-1].isVisited() &&
-	        		(	(board[y][x-1].isSafe() && safe) ||
-	         			!safe))
-		            coord[0]--;
+	    		if (x < 3 && 
+            		!board[y][x+1].isVisited() &&
+            		(	(board[y][x+1].isSafe() && safe) ||
+            			!safe))
+    	        	coord[0]++;
 	    		else if (y < 3 &&
-		        		 !board[y+1][x].isVisited() &&
-		        		 (	(board[y+1][x].isSafe() && safe) ||
-	             			!safe))
-		            coord[1]++;
+	   	        		 !board[y+1][x].isVisited() &&
+	   	        		 (	(board[y+1][x].isSafe() && safe) ||
+	                			!safe))
+	    			coord[1]++;
+	    		else if (x > 0 &&
+	   	        		 !board[y][x-1].isVisited() &&
+	   	        		 (	(board[y][x-1].isSafe() && safe) ||
+	                			!safe))
+	    			coord[0]--;
 	    		else if (y > 0 && 
-		        		 !board[y-1][x].isVisited() &&
-		        		 (	(board[y-1][x].isSafe() && safe) ||
-		        			!safe))
-		            coord[1]--;
+    	        		 !board[y-1][x].isVisited() &&
+    	        		 (	(board[y-1][x].isSafe() && safe) ||
+    	        			!safe))
+    	            coord[1]--;
+    	        else
+    	        {
+    	        	coord[0] = -1;
+    	        	coord[1] = -1;
+    	        }	    		
+	    	}
+	    	else if (orientation.equals("Up"))
+	    	{
+	    		if  (y > 0 && 
+   	        		 !board[y-1][x].isVisited() &&
+   	        		 (	(board[y-1][x].isSafe() && safe) ||
+   	        			!safe))
+	    			coord[1]--;
+	    		else if (x < 3 && 
+	            		!board[y][x+1].isVisited() &&
+	            		(	(board[y][x+1].isSafe() && safe) ||
+	            			!safe))
+    	        	coord[0]++;
+	    		else if (y < 3 &&
+	   	        		 !board[y+1][x].isVisited() &&
+	   	        		 (	(board[y+1][x].isSafe() && safe) ||
+	                			!safe))
+	    			coord[1]++;
+	    		else if (x > 0 &&
+	   	        		 !board[y][x-1].isVisited() &&
+	   	        		 (	(board[y][x-1].isSafe() && safe) ||
+	                			!safe))
+	    			coord[0]--;
+	    		else
+    	        {
+    	        	coord[0] = -1;
+    	        	coord[1] = -1;
+    	        }
+	    	}
+	    	else if (orientation.equals("Left"))
+	    	{
+	    		if ( x > 0 &&
+	        		 !board[y][x-1].isVisited() &&
+	        		 (	(board[y][x-1].isSafe() && safe) ||
+	            			!safe))
+	    			coord[0]--;
+	    		else if (y > 0 && 
+	   	        		 !board[y-1][x].isVisited() &&
+	   	        		 (	(board[y-1][x].isSafe() && safe) ||
+	   	        			!safe))
+	    			coord[1]--;
+	    		else if (x < 3 && 
+	            		!board[y][x+1].isVisited() &&
+	            		(	(board[y][x+1].isSafe() && safe) ||
+	            			!safe))
+    	        	coord[0]++;
+	    		else if (y < 3 &&
+	   	        		 !board[y+1][x].isVisited() &&
+	   	        		 (	(board[y+1][x].isSafe() && safe) ||
+	                			!safe))
+	    			coord[1]++;
+	    		else
+    	        {
+    	        	coord[0] = -1;
+    	        	coord[1] = -1;
+    	        }
+	    	}
+	    	else if (orientation.equals("Down"))
+	    	{
+	    		if ( y < 3 &&
+   	        		 !board[y+1][x].isVisited() &&
+   	        		 (	(board[y+1][x].isSafe() && safe) ||
+                			!safe))
+	   	            coord[1]++;
+	    		else if (x > 0 &&
+	   	        		 !board[y][x-1].isVisited() &&
+	   	        		 (	(board[y][x-1].isSafe() && safe) ||
+	                			!safe))
+	   	            coord[0]--;
+	    		else if (y > 0 && 
+	   	        		 !board[y-1][x].isVisited() &&
+	   	        		 (	(board[y-1][x].isSafe() && safe) ||
+	   	        			!safe))
+	    			coord[1]--;
 	    		else if (x < 3 && 
 	    				!board[y][x+1].isVisited() &&
 	    				(	(board[y][x+1].isSafe() && safe) ||
-    						!safe))
-		        	coord[0]++;
-		        else
-		        {
-		        	coord[0] = -1;
-		        	coord[1] = -1;
-		        }
+	    					!safe))
+    	        	coord[0]++;
+    	        else
+    	        {
+    	        	coord[0] = -1;
+    	        	coord[1] = -1;
+    	        }
 	    	}
-	        
+    	    	        
 	        return coord;
 	    }
 	    

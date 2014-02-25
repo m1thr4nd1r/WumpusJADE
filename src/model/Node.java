@@ -1,4 +1,4 @@
-package wumpus;
+package model;
 public class Node {
     private int f,g,h,x,y;
     private String orientation;

@@ -1,9 +1,11 @@
-package wumpus;
+package agent;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import model.Node;
+import model.Tile;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
@@ -960,7 +962,7 @@ public class HeroAgent extends Agent {
 				// Verifica se o Wumpus esta no mesmo X ou Y do agente
 				// (baseado no conhecimento do agente)
 				// !---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!
-				// A principio o agente so atira se tiver certeza da posicao do wumpus
+				// A principio o agente so atira se tiver certeza da posicao do agent
 				// a busca nao-segura talvez nao devesse levar isso em consideracao
 				// !---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!
 			 	for (int i = 0; i < 4; i++)
@@ -1013,7 +1015,7 @@ public class HeroAgent extends Agent {
 			 		
 			 		// Retorna a melhor direcao de rotacao 
 			 		// (para chegar numa orientacao em que seja possivel
-			 		// atirar no wumpus)
+			 		// atirar no agent)
 			 		return bestRotation(orientation,goal);		 		
 			 	}
 	    	}

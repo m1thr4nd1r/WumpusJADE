@@ -1,4 +1,4 @@
-package wumpus;
+package agent;
 
 import java.util.Random;
 

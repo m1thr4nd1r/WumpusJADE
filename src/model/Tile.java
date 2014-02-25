@@ -1,4 +1,4 @@
-package wumpus;
+package model;
 public class Tile {
     
     private boolean visited;

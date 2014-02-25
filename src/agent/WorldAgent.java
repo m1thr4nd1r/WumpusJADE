@@ -2,14 +2,12 @@ package agent;
 
 import java.util.Random;
 
-import jade.core.behaviours.CyclicBehaviour;
+import behaviour.WorldInformBehaviour;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 
 public class WorldAgent extends Agent {
 	
@@ -88,160 +86,6 @@ public class WorldAgent extends Agent {
        catch (Exception e) {}
     }
 	
-	private class WorldInformBehaviour extends CyclicBehaviour {
-
-		private static final long serialVersionUID = 1L;
-
-		public WorldInformBehaviour(Agent a)
-		{
-			this.myAgent = a;
-		}
-		
-		public void action() 
-		{
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
-			ACLMessage msg = receive(mt);
-			
-			while (msg != null)
-			{
-				if (msg.getConversationId().equals("Percept"))
-				{
-					// Determina onde se encontra a posi��o X do agente (contida na mensagem)
-					String content = msg.getContent();
-					int begin = 0;
-					int end = content.indexOf('|');
-					
-					// Obtem e transforma a string contendo a posi��o X do agente em inteiro
-					int x = Integer.parseInt(content.substring(begin , end));
-
-					// Determina onde se encontra a posi��o Y do agente (contida na mensagem)					
-					begin = end + 1;
-					end = content.indexOf('@', begin);
-
-					// Obtem e transforma a string contendo a posi��o X do agente em inteiro
-					int y = Integer.parseInt(content.substring(begin, end));
-					
-					// Determina onde se encontra o id do agente, obtem-no e o transforma para inteiro					
-					begin = end + 1;
-					int agent = Integer.parseInt(content.substring(begin));
-					
-					System.out.println("\nPedido de informacao do agente " + Integer.toString(agent) + ":");
-					System.out.println("X: " + (x) + " Y: " + (y) + " Conteudo: " + (board[y][x])); 
-
-					// Cria uma mensagem de resposta, setando o performativo correto alem de
-					// setar o conteudo (correspondente a informacao contida no tabuleiro)
-					ACLMessage reply = msg.createReply();
-					reply.setPerformative(ACLMessage.INFORM);
-					reply.setContent(board[y][x]);
-					
-					send(reply);
-				}
-				else if (msg.getConversationId().equals("Shoot"))
-				{
-					String content = msg.getContent();
-					int begin = 0;
-					int end = content.indexOf('|');
-					
-					int x = Integer.parseInt(content.substring(begin , end));
-					
-					begin = end + 1;
-					end = content.indexOf('|', begin);
-					
-					int y = Integer.parseInt(content.substring(begin, end));
-					
-					begin = end + 1;
-					String orientation = content.substring(begin);
-
-					ACLMessage reply = msg.createReply();
-					reply.setPerformative(ACLMessage.INFORM);
-					
-					if (killedWumpus(x, y, orientation))
-						reply.setContent("True");
-					else
-						reply.setContent("False");
-					
-					send(reply);
-				}
-				else if (msg.getConversationId().equals("Gold Grabbed"))
-				{
-					String content = msg.getContent();
-					int begin = 0;
-					int end = content.indexOf('|');
-					
-					int x = Integer.parseInt(content.substring(begin , end));
-					
-					begin = end + 1;
-					end = content.indexOf('|', begin);
-					
-					int y = Integer.parseInt(content.substring(begin, end));
-					
-					board[y][x].replace("G", "");
-				}
-				msg = receive();
-			}
-		}
-	
-		// Verifica se o Wumpus foi morto pelo Agente
-		public boolean killedWumpus(int x, int y, String orientation)
-	    {
-			int i;
-			
-			switch (orientation)
-	        {
-	            case "Up":
-	                        i = y;
-	                        while (i > 0)
-	                        {    
-	                            if (board[i][x].contains("W"))
-	                            {
-	                            	board[i][x].replace("W", "");
-	                                return true;
-	                            }
-	                            i--;
-	                        }
-	                        break;
-	            case "Down":
-	                        i = y;
-	                        while (i < 4)
-	                        {
-	                            if (board[i][x].contains("W"))
-	                            {
-	                            	board[i][x].replace("W", "");
-	                                return true;
-	                            }
-	                            i++;
-	                        }
-	                        break;
-	            case "Left":
-	                        i = x;
-	                        while (i > 0)
-	                        {
-	                        	if (board[y][i].contains("W"))
-	                        	{
-	                        		board[y][i].contains("W");
-	                                return true;
-	                        	}
-	                            i--;
-	                        }
-	                        break;
-	            case "Right":
-	                        i = x;
-	                        while (i < 4)
-	                        {
-	                        	if (board[y][i].contains("W"))
-	                        	{
-	                        		board[y][i].contains("W");
-	                                return true;
-	                        	}
-	                            i++;
-	                        }
-	                        break;
-	    	}
-			
-			return false;
-	    }
-	}
-	
 	public void generate(char code)
     {
         int x,y;
@@ -291,9 +135,16 @@ public class WorldAgent extends Agent {
         }
         else if (code == 'G')
             if (!board[y][x].contains("G"))
-                board[y][x] += "G";
-        
+                board[y][x] += "G";        
     }
+	
+	public String[][] getBoard() {
+		return board;
+	}
+
+	public void setBoard(String content, int x, int y) {
+		this.board[x][y] = content;
+	}
 	
 	public void printBoard()
     {
